@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Contest System</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header>
+  <h1>🏆 Contest System</h1>
+  <div id="authBar"></div>
+</header>
+
+<nav id="navBar" style="display:none;">
+  <button data-view="contests">Contests</button>
+  <button data-view="auth" id="loginNavBarBtn" style="display:none;">Log In / Sign Up</button>
+  <button data-view="history">My History</button>
+  <button data-view="admin" id="adminNavBtn" style="display:none;">Admin</button>
+</nav>
+
+<main id="app">
+
+  <!-- LOGIN / SIGNUP VIEW -->
+  <section id="view-auth" class="view">
+    <div class="card auth-card">
+      <h2>Log In</h2>
+      <form id="loginForm">
+        <input type="email" id="loginEmail" placeholder="Email" required />
+        <input type="password" id="loginPassword" placeholder="Password" required />
+        <button type="submit">Log In</button>
+      </form>
+            <p class="hint" style="font-size: large;">Demo accounts (password: <code>password123</code>): admin@test.com, vip@test.com, normal@test.com</p>
+
+      <p class="hint">No account? Use the sign up form below. Guests can browse contests without logging in.</p>
+
+      <h2>Sign Up</h2>
+      <form id="signupForm">
+        <input type="text" id="signupName" placeholder="Full name" required />
+        <input type="email" id="signupEmail" placeholder="Email" required />
+        <input type="password" id="signupPassword" placeholder="Password" required />
+        <select id="signupRole">
+          <option value="normal">Normal user</option>
+          <option value="vip">VIP user</option>
+          <option value="admin">Admin (for testing)</option>
+        </select>
+        <button type="submit">Sign Up</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- CONTESTS LIST VIEW -->
+  <section id="view-contests" class="view" style="display:none;">
+    <h2>Contests</h2>
+    <div id="contestsList" class="grid"></div>
+  </section>
+
+  <!-- SINGLE CONTEST / TAKE QUIZ VIEW -->
+  <section id="view-contest-detail" class="view" style="display:none;">
+    <button class="back-btn" data-view="contests">&larr; Back to contests</button>
+    <div id="contestDetail"></div>
+  </section>
+
+  <!-- LEADERBOARD VIEW -->
+  <section id="view-leaderboard" class="view" style="display:none;">
+    <button class="back-btn" data-view="contests">&larr; Back to contests</button>
+    <div id="leaderboardContent"></div>
+  </section>
+
+  <!-- HISTORY VIEW -->
+  <section id="view-history" class="view" style="display:none;">
+    <h2>My History</h2>
+    <div id="historyContent"></div>
+  </section>
+
+  <!-- ADMIN VIEW -->
+  <section id="view-admin" class="view" style="display:none;">
+    <h2>Admin Panel</h2>
+
+    <div class="card">
+      <h3>Create Contest</h3>
+      <form id="createContestForm">
+        <input type="text" id="cName" placeholder="Contest name" required />
+        <textarea id="cDescription" placeholder="Description"></textarea>
+        <select id="cAccessLevel">
+          <option value="normal">Normal</option>
+          <option value="vip">VIP</option>
+        </select>
+        <input type="text" id="cPrize" placeholder="Prize (e.g. $50 Gift Card)" />
+        <label>Start time <input type="datetime-local" id="cStart" required /></label>
+        <label>End time <input type="datetime-local" id="cEnd" required /></label>
+        <button type="submit">Create Contest</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h3>Add Question to a Contest</h3>
+      <form id="addQuestionForm">
+        <select id="qContestId" required></select>
+        <input type="text" id="qText" placeholder="Question text" required />
+        <select id="qType">
+          <option value="single">Single-select</option>
+          <option value="multi">Multi-select</option>
+          <option value="truefalse">True / False</option>
+        </select>
+        <input type="number" id="qPoints" placeholder="Points" value="1" min="1" />
+        <div id="optionsBuilder"></div>
+        <button type="button" id="addOptionBtn">+ Add Option</button>
+        <button type="submit">Add Question</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h3>Award Prize</h3>
+      <form id="awardPrizeForm">
+        <select id="awardContestId" required></select>
+        <button type="submit">Award Prize to Top Scorer</button>
+      </form>
+      <div id="awardResult"></div>
+    </div>
+  </section>
+
+</main>
+
+<div id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

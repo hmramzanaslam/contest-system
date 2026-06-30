@@ -1,0 +1,303 @@
+{
+  "info": {
+    "name": "Contest Participation System",
+    "description": "API collection for the Contest System. Run 'Login (Admin)', 'Login (VIP)', or 'Login (Normal)' first - they auto-save tokens to collection variables used by other requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:4000/api" },
+    { "key": "adminToken", "value": "" },
+    { "key": "vipToken", "value": "" },
+    { "key": "normalToken", "value": "" },
+    { "key": "contestId", "value": "1" },
+    { "key": "vipContestId", "value": "2" }
+  ],
+  "item": [
+    {
+      "name": "1. Auth",
+      "item": [
+        {
+          "name": "Sign Up",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/signup",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"testuser@test.com\",\n  \"password\": \"password123\",\n  \"role\": \"normal\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const data = pm.response.json();",
+                  "pm.collectionVariables.set('adminToken', data.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@test.com\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login (VIP)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const data = pm.response.json();",
+                  "pm.collectionVariables.set('vipToken', data.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"vip@test.com\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login (Normal)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const data = pm.response.json();",
+                  "pm.collectionVariables.set('normalToken', data.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"normal@test.com\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Contests",
+      "item": [
+        {
+          "name": "List Contests (as Guest)",
+          "request": { "method": "GET", "url": "{{baseUrl}}/contests" }
+        },
+        {
+          "name": "List Contests (as Normal User)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{normalToken}}" }],
+            "url": "{{baseUrl}}/contests"
+          }
+        },
+        {
+          "name": "Get Single Contest (with questions)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{normalToken}}" }],
+            "url": "{{baseUrl}}/contests/{{contestId}}"
+          }
+        },
+        {
+          "name": "Create Contest (Admin only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": "{{baseUrl}}/contests",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sample Contest\",\n  \"description\": \"A test contest\",\n  \"access_level\": \"normal\",\n  \"prize\": \"$100\",\n  \"start_time\": \"2026-07-01T00:00:00.000Z\",\n  \"end_time\": \"2026-07-10T00:00:00.000Z\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Create Contest (Should Fail - Normal User)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{normalToken}}" }
+            ],
+            "url": "{{baseUrl}}/contests",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Should Fail\",\n  \"access_level\": \"normal\",\n  \"start_time\": \"2026-07-01T00:00:00.000Z\",\n  \"end_time\": \"2026-07-10T00:00:00.000Z\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Questions (Admin)",
+      "item": [
+        {
+          "name": "Add Single-Select Question",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": "{{baseUrl}}/questions",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contest_id\": {{contestId}},\n  \"question_text\": \"What is the capital of Japan?\",\n  \"question_type\": \"single\",\n  \"points\": 1,\n  \"options\": [\n    { \"option_text\": \"Tokyo\", \"is_correct\": true },\n    { \"option_text\": \"Seoul\", \"is_correct\": false }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Add Multi-Select Question",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": "{{baseUrl}}/questions",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contest_id\": {{contestId}},\n  \"question_text\": \"Which are even numbers?\",\n  \"question_type\": \"multi\",\n  \"points\": 2,\n  \"options\": [\n    { \"option_text\": \"2\", \"is_correct\": true },\n    { \"option_text\": \"3\", \"is_correct\": false },\n    { \"option_text\": \"4\", \"is_correct\": true }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Add True/False Question",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": "{{baseUrl}}/questions",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contest_id\": {{contestId}},\n  \"question_text\": \"Water boils at 100C at sea level.\",\n  \"question_type\": \"truefalse\",\n  \"points\": 1,\n  \"options\": [\n    { \"option_text\": \"True\", \"is_correct\": true },\n    { \"option_text\": \"False\", \"is_correct\": false }\n  ]\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Participation",
+      "item": [
+        {
+          "name": "Join Contest (Normal User)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{normalToken}}" }],
+            "url": "{{baseUrl}}/contests/{{contestId}}/join"
+          }
+        },
+        {
+          "name": "Join VIP Contest (Should Fail - Normal User)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{normalToken}}" }],
+            "url": "{{baseUrl}}/contests/{{vipContestId}}/join"
+          }
+        },
+        {
+          "name": "Join Contest (Should Fail - Guest)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/contests/{{contestId}}/join"
+          }
+        },
+        {
+          "name": "Submit Answers",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{normalToken}}" }
+            ],
+            "url": "{{baseUrl}}/contests/{{contestId}}/submit",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"answers\": [\n    { \"question_id\": 1, \"option_ids\": [1] },\n    { \"question_id\": 2, \"option_ids\": [4] },\n    { \"question_id\": 3, \"option_ids\": [6, 8] }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Submit Again (Should Fail - Already Submitted)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{normalToken}}" }
+            ],
+            "url": "{{baseUrl}}/contests/{{contestId}}/submit",
+            "body": { "mode": "raw", "raw": "{ \"answers\": [] }" }
+          }
+        },
+        {
+          "name": "Award Prize (Admin only)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": "{{baseUrl}}/contests/{{contestId}}/award-prize"
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Leaderboard",
+      "item": [
+        {
+          "name": "Get Leaderboard for Contest",
+          "request": { "method": "GET", "url": "{{baseUrl}}/leaderboard/{{contestId}}" }
+        }
+      ]
+    },
+    {
+      "name": "6. History",
+      "item": [
+        {
+          "name": "Get My History",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{normalToken}}" }],
+            "url": "{{baseUrl}}/history/me"
+          }
+        },
+        {
+          "name": "Get My History (Should Fail - Guest)",
+          "request": { "method": "GET", "url": "{{baseUrl}}/history/me" }
+        }
+      ]
+    },
+    {
+      "name": "7. Health Check",
+      "item": [
+        { "name": "Health", "request": { "method": "GET", "url": "{{baseUrl}}/health" } }
+      ]
+    }
+  ]
+}
