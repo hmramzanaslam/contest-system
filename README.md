@@ -77,8 +77,7 @@ be opened directly as a `file://` URL because of browser CORS rules around `fetc
 
 ```bash
 cd frontend
-python3 -m http.server 5500
-```
+npx serve -l 5500```
 
 Then open **http://localhost:5500** in your browser. (Any static file server works - e.g.
 `npx serve`, VS Code's "Live Server" extension, etc.)
